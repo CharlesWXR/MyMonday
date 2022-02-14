@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping(value = "/task")
-public class LoadTaskController {
+public class TaskController {
     @Autowired
     private TaskService taskService;
 
@@ -42,32 +42,13 @@ public class LoadTaskController {
     public Result updateTask(@RequestBody Map<String, Object> params) {
         log.info("Controller: updateTask invoked");
 
-        if (params.containsKey("task") == false || params.containsKey("attr") == false)
+        if (params.containsKey("task_id") == false || params.containsKey("attr") == false || params.containsKey("new_val") == false)
             return Result.fail(ResultCode.BAD_REQUEST, null);
 
-        Task newVal = new Task();
-        Map<String, Object> taskMap = (Map<String, Object>)params.get("task");
-        try {
-            ConvertUtils.register(new Converter() {
-                public Object convert(Class type, Object value) {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    try {
-                        return simpleDateFormat.parse(value.toString());
-                    } catch (Exception e) {
-                        log.error("BeanUtil Converter: Fail to convert string to date: {}", value);
-                    }
-                    return null;
-                }
-            }, Date.class);
-
-            BeanUtils.populate(newVal, taskMap);
-        } catch (Exception e) {
-            log.error("Controller: updateTask: {}: params={}", e.getMessage(), params);
-            return Result.fail(ResultCode.BAD_REQUEST, null);
-        }
-
+        int taskID = (int)params.get("task_id");
         String attr = (String)params.get("attr");
-        if (taskService.updateTask(attr, newVal)) {
+        Object newVal = params.get("new_val");
+        if (taskService.updateTask(taskID, attr, newVal)) {
             return Result.success(null);
         }
         else {
@@ -84,11 +65,26 @@ public class LoadTaskController {
 
         List<Integer> userIDs = (List<Integer>) params.get("initiators");
         int taskID = (int) params.get("task_id");
-        if (taskService.updateTaskInitiator(taskID, userIDs)) {
+        if (userIDs != null && taskService.updateTaskInitiator(taskID, userIDs)) {
             return Result.success(null);
         }
         else {
             return Result.fail(ResultCode.BAD_REQUEST, null);
         }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/accepter", method = RequestMethod.PUT)
+    public Result updateTaskAccepter(@RequestBody Map<String, Object> params) {
+        log.info("Controller: update accepter invoked");
+        if (!params.containsKey("accepters") && !params.containsKey("task_id"))
+            return Result.fail(ResultCode.BAD_REQUEST, null);
+
+        List<Integer> userIDs = (List<Integer>) params.get("accepters");
+        int taskID = (int) params.get("task_id");
+        if (userIDs != null && taskService.updateTaskAcceptor(taskID, userIDs))
+            return Result.success(null);
+        else
+            return Result.fail(ResultCode.BAD_REQUEST, null);
     }
 }

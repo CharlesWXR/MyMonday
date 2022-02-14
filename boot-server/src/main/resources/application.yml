@@ -1,0 +1,27 @@
+server:
+  port: 8088
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    username: root
+    password: P@ssW0&d
+    url: jdbc:mysql://localhost:3306/mymonday
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 2048MB
+      enabled: true
+
+logging:
+  config: logback.xml
+
+minio:
+  server: http://localhost:9000
+  access-key: admin
+  secret-key: password
+  bucket: mymonday
