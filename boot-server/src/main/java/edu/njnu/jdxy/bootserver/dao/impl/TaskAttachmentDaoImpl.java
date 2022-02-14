@@ -32,6 +32,25 @@ public class TaskAttachmentDaoImpl implements TaskAttachmentDao {
     }
 
     @Override
+    public List<Attachment> getAttachmentsByTaskID(int taskID) {
+        List<Attachment> attachments = new ArrayList<Attachment>();
+        try {
+            String queryUpdateIDs = "SELECT id FROM task_update WHERE task_id = ?";
+            List<Integer> updateIDs = template.queryForList(queryUpdateIDs, Integer.class, taskID);
+
+            String queryAttachments = "SELECT * FROM task_attachment WHERE update_id = ?";
+            for(int id : updateIDs) {
+                List<Attachment> temp = template.query(queryAttachments, new BeanPropertyRowMapper<Attachment>(Attachment.class), id);
+                attachments.addAll(temp);
+            }
+        } catch (DataAccessException e) {
+            log.error("Dao: get attachments failed: taskID: {} : {}", taskID, e.getMessage());
+        } finally {
+            return attachments;
+        }
+    }
+
+    @Override
     public List<Attachment> searchAttachmentByFileName(String filename) {
         List<Attachment> attachments = new ArrayList<Attachment>();
         try {

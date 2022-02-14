@@ -1,5 +1,6 @@
 package edu.njnu.jdxy.bootserver.service.impl;
 
+import edu.njnu.jdxy.bootserver.dao.TaskAttachmentDao;
 import edu.njnu.jdxy.bootserver.dao.TaskOutputDao;
 import edu.njnu.jdxy.bootserver.pojo.Attachment;
 import edu.njnu.jdxy.bootserver.service.AttachmentService;
@@ -20,6 +21,9 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     TaskOutputDao taskOutputDao;
 
+    @Autowired
+    TaskAttachmentDao taskAttachmentDao;
+
     @Override
     public InputStream getAttachmentByName(String name) {
         return minioUtil.downloadFile("/attachments/" + name);
@@ -28,5 +32,15 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public List<Attachment> getOutputByTaskID(int taskID) {
         return taskOutputDao.getOutputsByTaskID(taskID);
+    }
+
+    @Override
+    public List<Attachment> getAttachmentsByTaskID(int taskID) {
+        return taskAttachmentDao.getAttachmentsByTaskID(taskID);
+    }
+
+    @Override
+    public boolean addOutputs(List<Integer> attachmentIDs, int taskID) {
+        return taskOutputDao.deleteOutputByTaskID(taskID) && taskOutputDao.insertOutput(attachmentIDs, taskID);
     }
 }

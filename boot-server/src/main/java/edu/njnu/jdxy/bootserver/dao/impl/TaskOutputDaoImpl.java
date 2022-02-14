@@ -34,4 +34,30 @@ public class TaskOutputDaoImpl implements TaskOutputDao {
             return attachments;
         }
     }
+
+    @Override
+    public boolean deleteOutputByTaskID(int taskID) {
+        try {
+            String sql = "DELETE FROM task_output WHERE task_id = ?";
+            return template.update(sql, taskID) > 0;
+        } catch (DataAccessException e) {
+            log.error("Dao: failed to delete outputs: taskID: {}: {}", taskID, e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean insertOutput(List<Integer> attachmentIDs, int taskID) {
+        try {
+            String sql = "INSERT INTO task_output(task_id, attachment_id)" +
+                    "VALUES(?, ?)";
+            for (int i : attachmentIDs) {
+                template.update(sql, taskID, i);
+            }
+            return true;
+        } catch (DataAccessException e) {
+            log.error("Dao: task output inserted failed: taskID: {} : {}", taskID, e.getMessage());;
+            return false;
+        }
+    }
 }

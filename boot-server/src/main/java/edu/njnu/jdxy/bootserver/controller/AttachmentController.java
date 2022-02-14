@@ -3,18 +3,17 @@ package edu.njnu.jdxy.bootserver.controller;
 import edu.njnu.jdxy.bootserver.pojo.Attachment;
 import edu.njnu.jdxy.bootserver.pojo.Result;
 import edu.njnu.jdxy.bootserver.service.AttachmentService;
+import edu.njnu.jdxy.bootserver.utils.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -46,9 +45,30 @@ public class AttachmentController {
         }
     }
 
+    @RequestMapping(value = "/{taskID}", method = RequestMethod.GET)
+    public Result getAttachments(@PathVariable int taskID) {
+        List<Attachment> attachments = attachmentService.getAttachmentsByTaskID(taskID);
+        return Result.success(attachments);
+    }
+
     @RequestMapping(value = "/output", method = RequestMethod.GET)
     public Result getOutputs(@RequestParam("task_id")int taskID) {
         List<Attachment> attachments = attachmentService.getOutputByTaskID(taskID);
         return Result.success(attachments);
+    }
+
+    @RequestMapping(value = "/output", method = RequestMethod.PUT)
+    public Result addOutputs(@RequestBody Map<String, Object> params) {
+        log.info("Service: addOutputs invoked!");
+        if (!params.containsKey("task_id") || !params.containsKey("attachment_id")) {
+            return Result.fail(ResultCode.BAD_REQUEST, null);
+        }
+
+        List<Integer> attachmentIDs = (List<Integer>) params.get("attachment_id");
+        int taskID = (int) params.get("task_id");
+        if (attachmentService.addOutputs(attachmentIDs, taskID))
+            return Result.success(null);
+        else
+            return Result.fail(ResultCode.BAD_REQUEST, null);
     }
 }
