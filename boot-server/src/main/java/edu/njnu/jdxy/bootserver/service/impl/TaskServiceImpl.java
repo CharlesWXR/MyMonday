@@ -71,6 +71,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<Task> getAllTasks() {
+        return taskDao.getAllTasks();
+    }
+
+    @Override
     public boolean updateTask(int taskID, String attr, Object newVal) {
         return taskDao.updateTask(taskID, attr, newVal);
     }
@@ -85,5 +90,21 @@ public class TaskServiceImpl implements TaskService {
     public boolean updateTaskAcceptor(int taskID, List<Integer> acceptors) {
         taskDao.deleteTaskAccepter(taskID);
         return taskDao.updateTaskAccepter(taskID, acceptors);
+    }
+
+    @Override
+    public int getWorkspaceIDByTaskgroupID(int taskgroupID) {
+        return workspaceDao.getWorkspaceIDByTaskgroupID(taskgroupID);
+    }
+
+    @Override
+    public boolean createTask(Task task, List<Integer> initiators) {
+        int id = taskDao.insertTask(task);
+        if (id != -1) {
+            return taskDao.updateTaskInitiator(id, initiators);
+        }
+        else {
+            return false;
+        }
     }
 }

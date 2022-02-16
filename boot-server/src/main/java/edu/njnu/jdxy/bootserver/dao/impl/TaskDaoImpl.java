@@ -10,10 +10,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +39,19 @@ public class TaskDaoImpl implements TaskDao {
         } catch (DataAccessException e) {
             log.error("Dao: Task: fail to fetch tasks with Task Group ID = {}: {}", id, e.getMessage());
             return new ArrayList<Task>();
+        }
+    }
+
+    @Override
+    public List<Task> getAllTasks() {
+        List<Task> res = new ArrayList<Task>();
+        try {
+            String sql = "SELECT * FROM task WHERE id != 0";
+            res = template.query(sql, new BeanPropertyRowMapper<Task>(Task.class));
+        } catch (DataAccessException e) {
+            log.error("Dao: fail to get all tasks");
+        } finally {
+            return res;
         }
     }
 
@@ -158,6 +176,33 @@ public class TaskDaoImpl implements TaskDao {
         } catch (DataAccessException e) {
             log.error("Dao: update task accepter: taskID:{} : {}", taskID, e.getMessage());
             return false;
+        }
+    }
+
+    @Override
+    public int insertTask(Task task) {
+        try {
+            String sql = "INSERT INTO task(name, description, ddl, type, state, priority, taskgroup_id)" +
+                    "VALUES(?, ?, ?, ?, ?, ?, ?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            template.update(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                    PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                    ps.setObject(1, task.getName());
+                    ps.setObject(2, task.getDescription());
+                    ps.setObject(3, task.getDdl());
+                    ps.setObject(4, task.getType());
+                    ps.setObject(5, task.getState());
+                    ps.setObject(6, task.getPriority());
+                    ps.setObject(7, task.getTaskgroup_id());
+                    return ps;
+                }
+            }, keyHolder);
+            return keyHolder.getKey().intValue();
+        } catch (DataAccessException e) {
+            log.error("Dao: failed to insert the task: {}: {}", task.toString(), e.getMessage());
+            return -1;
         }
     }
 }

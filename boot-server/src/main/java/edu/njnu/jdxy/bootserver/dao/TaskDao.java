@@ -8,6 +8,8 @@ import java.util.List;
 public interface TaskDao {
     List<Task> getTasksByTaskGroupID(int id);
 
+    List<Task> getAllTasks();
+
     List<MiniUser> getInitiatorsByTaskID(int id);
 
     List<MiniUser> getAccepterByTaskID(int id);
@@ -21,4 +23,6 @@ public interface TaskDao {
     boolean deleteTaskAccepter(int taskID);
 
     boolean updateTaskAccepter(int taskID, List<Integer> accepterIDs);
+
+    int insertTask(Task task);
 }

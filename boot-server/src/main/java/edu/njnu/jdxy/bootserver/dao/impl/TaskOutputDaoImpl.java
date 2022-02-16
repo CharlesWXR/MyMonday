@@ -39,7 +39,7 @@ public class TaskOutputDaoImpl implements TaskOutputDao {
     public boolean deleteOutputByTaskID(int taskID) {
         try {
             String sql = "DELETE FROM task_output WHERE task_id = ?";
-            return template.update(sql, taskID) > 0;
+            return template.update(sql, taskID) >= 0;
         } catch (DataAccessException e) {
             log.error("Dao: failed to delete outputs: taskID: {}: {}", taskID, e.getMessage());
             return false;

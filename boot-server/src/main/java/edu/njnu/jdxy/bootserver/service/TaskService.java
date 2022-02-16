@@ -16,9 +16,15 @@ public interface TaskService {
 
     List<Task> getTasksByTaskGroupID(int id);
 
+    List<Task> getAllTasks();
+
     boolean updateTask(int taskID, String attr, Object newVal);
 
     boolean updateTaskInitiator(int taskID, List<Integer> initiators);
 
     boolean updateTaskAcceptor(int taskID, List<Integer> acceptors);
+
+    int getWorkspaceIDByTaskgroupID(int taskgroupID);
+
+    boolean createTask(Task task, List<Integer> initiators);
 }

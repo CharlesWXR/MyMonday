@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface WorkspaceDao {
     List<Workspace> getWorkspacesByDepartmentID(int id);
+
+    int getWorkspaceIDByTaskgroupID(int taskgroupID);
 }

@@ -12,7 +12,9 @@ import org.apache.commons.beanutils.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -24,17 +26,32 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @ResponseBody
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    public Result getTaskgroupsByWorkspaceID(@RequestParam("workspace_id")int id) {
-        log.info("Controller: getTaskgroups invoked");
-        List<Taskgroup> res = taskService.getTaskgroupsByWorkspaceID(id);
-        if (res.size() == 0) {
-            return Result.fail(ResultCode.NO_TASK_EXIST, res);
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public Result getAllTasks() {
+        return Result.success(taskService.getAllTasks());
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.PUT)
+    public Result createTask(@RequestBody Map<String, Object> params) {
+        log.info("Controller: create task invoked!");
+
+        if (!params.containsKey("initiators"))
+            return Result.fail(ResultCode.BAD_REQUEST, null);
+
+        Task task = new Task();
+        List<Integer> initiators = new ArrayList<Integer>();
+        try {
+            BeanUtils.populate(task, params);
+            initiators = (List<Integer>) params.get("initiators");
+        } catch (Exception e) {
+            log.error("Controller: create task failed: params: {}: {}", params.toString(), e.getMessage());
+            return Result.fail(ResultCode.BAD_REQUEST, null);
         }
-        else {
-            return Result.success(res);
-        }
+
+        if (taskService.createTask(task, initiators))
+            return Result.success(null);
+        else
+            return Result.fail(ResultCode.BAD_REQUEST, null);
     }
 
     @ResponseBody
