@@ -30,6 +30,16 @@ public class TaskgroupController {
         }
     }
 
+    @RequestMapping(value = "", method = RequestMethod.PUT)
+    public Result createTaskgroup(@RequestParam("taskgroup_name")String taskgroupName,
+                                  @RequestParam("workspace_id") int workspaceID) {
+        log.info("Controller: create taskgroup invoked!");
+        if (taskService.createTaskgroup(taskgroupName, workspaceID))
+            return Result.success(null);
+        else
+            return Result.fail(ResultCode.BAD_REQUEST, null);
+    }
+
     @RequestMapping(value = "/workspace", method = RequestMethod.GET)
     public Result getWorkspaceIDByTaskgroup(@RequestParam("taskgroup_id")int id) {
         log.info("Controller: get taskgroup's workspace id");

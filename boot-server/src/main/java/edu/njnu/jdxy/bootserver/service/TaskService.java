@@ -27,4 +27,6 @@ public interface TaskService {
     int getWorkspaceIDByTaskgroupID(int taskgroupID);
 
     boolean createTask(Task task, List<Integer> initiators);
+
+    boolean createTaskgroup(String taskgroupName, int workspaceID);
 }

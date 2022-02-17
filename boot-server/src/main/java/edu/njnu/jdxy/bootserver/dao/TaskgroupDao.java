@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface TaskgroupDao {
     List<Taskgroup> getTaskgroupsByWorkspaceID(int workspaceID);
+
+    int insertTaskgroup(String taskgroupName, int workspaceID);
 }

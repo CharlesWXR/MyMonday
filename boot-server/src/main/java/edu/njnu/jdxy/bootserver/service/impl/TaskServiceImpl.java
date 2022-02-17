@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 @Slf4j
@@ -106,5 +105,10 @@ public class TaskServiceImpl implements TaskService {
         else {
             return false;
         }
+    }
+
+    @Override
+    public boolean createTaskgroup(String taskgroupName, int workspaceID) {
+        return taskgroupDao.insertTaskgroup(taskgroupName, workspaceID) != -1;
     }
 }

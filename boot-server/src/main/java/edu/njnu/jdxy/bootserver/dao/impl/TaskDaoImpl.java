@@ -103,7 +103,7 @@ public class TaskDaoImpl implements TaskDao {
     public boolean deleteTaskInitiator(int taskID) {
         try {
             String sql = "DELETE FROM task_initiator WHERE task_id = ?";
-            return template.update(sql, taskID) > 0;
+            return template.update(sql, taskID) >= 0;
         } catch (DataAccessException e) {
             log.error("Dao: Task: fail to delete initiator in task:{}: {}", taskID, e.getMessage());
             return false;
@@ -143,7 +143,7 @@ public class TaskDaoImpl implements TaskDao {
     public boolean deleteTaskAccepter(int taskID) {
         try {
             String sql = "DELETE FROM task_accepter WHERE task_id = ?";
-            return template.update(sql, taskID) > 0;
+            return template.update(sql, taskID) >= 0;
         } catch (Exception e) {
             log.error("Dao: delete task accepter: taskID:{}: {}", taskID, e.getMessage());
             return false;

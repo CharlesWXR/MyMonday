@@ -2,20 +2,14 @@ package edu.njnu.jdxy.bootserver.controller;
 
 import edu.njnu.jdxy.bootserver.pojo.Result;
 import edu.njnu.jdxy.bootserver.pojo.Task;
-import edu.njnu.jdxy.bootserver.pojo.Taskgroup;
 import edu.njnu.jdxy.bootserver.service.TaskService;
 import edu.njnu.jdxy.bootserver.utils.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,22 +25,24 @@ public class TaskController {
         return Result.success(taskService.getAllTasks());
     }
 
-    @RequestMapping(value = "", method = RequestMethod.PUT)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public Result createTask(@RequestBody Map<String, Object> params) {
         log.info("Controller: create task invoked!");
 
-        if (!params.containsKey("initiators"))
+        if (!params.containsKey("task_initiators"))
             return Result.fail(ResultCode.BAD_REQUEST, null);
 
         Task task = new Task();
         List<Integer> initiators = new ArrayList<Integer>();
         try {
             BeanUtils.populate(task, params);
-            initiators = (List<Integer>) params.get("initiators");
+            initiators = (List<Integer>) params.get("task_initiators");
         } catch (Exception e) {
-            log.error("Controller: create task failed: params: {}: {}", params.toString(), e.getMessage());
+            log.error("Controller: create task failed: params: {}: {}", params, e.getMessage());
             return Result.fail(ResultCode.BAD_REQUEST, null);
         }
+
+        log.info(task.toString());
 
         if (taskService.createTask(task, initiators))
             return Result.success(null);
@@ -59,7 +55,7 @@ public class TaskController {
     public Result updateTask(@RequestBody Map<String, Object> params) {
         log.info("Controller: updateTask invoked");
 
-        if (params.containsKey("task_id") == false || params.containsKey("attr") == false || params.containsKey("new_val") == false)
+        if (!params.containsKey("task_id") || !params.containsKey("attr") || !params.containsKey("new_val"))
             return Result.fail(ResultCode.BAD_REQUEST, null);
 
         int taskID = (int)params.get("task_id");
